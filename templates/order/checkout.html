@@ -1,0 +1,100 @@
+<!-- filepath: c:\Users\ADARSH TRIPATHI\OneDrive\Attachments\Ecommerce_site\POS\templates\order\checkout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .checkout-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+            width: 350px;
+            text-align: center;
+            position: relative;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .form-step.active {
+            display: block;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #218838;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(10px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+    </style>
+</head>
+<body>
+
+<div class="checkout-container">
+    <h2>Checkout</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-step active" id="step1">
+            <label for="address">Shipping Address</label>
+            <textarea name="address" id="address" required></textarea>
+            <button type="button" onclick="nextStep(1)">Next</button>
+        </div>
+        
+        <div class="form-step" id="step2">
+            <label for="phone">Phone Number</label>
+            <input type="text" name="phone" id="phone" required>
+            <button type="submit">Place Order</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function nextStep(step) {
+        document.getElementById(`step${step}`).classList.remove("active");
+        document.getElementById(`step${step + 1}`).classList.add("active");
+    }
+</script>
+
+</body>
+</html>
+

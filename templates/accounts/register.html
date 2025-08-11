@@ -1,6 +1,130 @@
-<h2>Register</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Register</button>
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            padding: 30px;
+            width: 350px;
+            position: relative;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .step.active {
+            display: block;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #2575fc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1e63d3;
+        }
+        .errorlist {
+            color: red;
+            list-style: none;
+            padding: 0;
+            font-size: 14px;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Create an Account</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <p style="color: red;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Step 1: Username -->
+            <div class="step active">
+                <label>Enter Username</label>
+                {{ form.username }}
+                <button type="button" onclick="nextStep()">Next</button>
+            </div>
+            
+            <!-- Step 2: Email -->
+            <div class="step">
+                <label>Enter Email</label>
+                {{ form.email }}
+                <button type="button" onclick="nextStep()">Next</button>
+            </div>
+            
+            <!-- Step 3: Password -->
+            <div class="step">
+                <label>Enter Password</label>
+                {{ form.password1 }}
+                <button type="button" onclick="nextStep()">Next</button>
+            </div>
+            
+            <!-- Step 4: Confirm Password -->
+            <div class="step">
+                <label>Confirm Password</label>
+                {{ form.password2 }}
+                <button type="submit">Register</button>
+            </div>
+        </form>
+
+        <a href="{% url 'account_app:login' %}" style="display:block; text-align:center; margin-top:10px;">Back to Login</a>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.step');
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                steps[currentStep].classList.remove('active');
+                currentStep++;
+                steps[currentStep].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
+
+

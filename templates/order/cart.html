@@ -1,31 +1,105 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}My Cart{% endblock %}
 
 {% block content %}
-<h2>Your Cart</h2>
-{% if items %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>${{ item.product.price }}</td>
-                <td>${{ item.quantity|multiply:item.product.price }}</td>
-            </tr>
+<div class="cart-container">
+    <h1>🛒 Your Shopping Cart</h1>
+
+    {% if cart_items %}
+        <div class="cart-items">
+            {% for item in cart_items %}
+            <div class="cart-item">
+                {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="cart-img">
+                {% endif %}
+                <div class="cart-details">
+                    <h3>{{ item.product.name }}</h3>
+                    <p>Quantity: <strong>{{ item.quantity }}</strong></p>
+                    <p>Price: ₹{{ item.product.price }}</p>
+                    <p><strong>Total: ₹{{ item.total_price }}</strong></p>
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
-    <h3>Total: ${{ total }}</h3>
-    <a href="{% url 'checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
-{% else %}
-    <p>Your cart is empty.</p>
-{% endif %}
+        </div>
+
+        <div class="cart-summary">
+            <h2>💰 Total: ₹{{ total }}</h2>
+            <a href="{% url 'order_app:checkout' %}" class="btn-checkout">Proceed to Checkout</a>
+        </div>
+    {% else %}
+        <p class="empty-cart">Your cart is empty. 🛍️</p>
+    {% endif %}
+</div>
+
+<style>
+.cart-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+}
+
+.cart-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 20px;
+}
+
+.cart-details h3 {
+    margin: 0;
+    color: #333;
+}
+
+.cart-details p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.cart-summary {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.btn-checkout {
+    background: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-checkout:hover {
+    background: #218838;
+}
+
+.empty-cart {
+    text-align: center;
+    font-size: 18px;
+    color: #777;
+}
+</style>
 {% endblock %}

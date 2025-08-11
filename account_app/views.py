@@ -1,53 +1,66 @@
-from urllib import request
-from django.shortcuts import render,redirect
-from django.contrib.auth import login, authenticate
-from .forms import RegisterForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
+from .forms import CustomUserCreationForm, CustomLoginForm
+from .models import CustomUser
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
 
 def register_view(request):
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
+    if request.method == "POST":
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('login')  # Redirect to login or any other page after registration
+            form.save()
+            messages.success(request, "Registration successful! Please log in.")
+            return redirect('account_app:login')
     else:
-        form = RegisterForm()
+        form = CustomUserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
 
 
 def login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+    if request.method == "POST":
+        form = CustomLoginForm(request, data=request.POST)
+        if form.is_valid():
+            username_or_email = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
 
-        if username and password:  # make sure both are filled
-            user = authenticate(request, username=username, password=password)
+            # Allow login with email
+            user = authenticate(username=username_or_email, password=password)
+            if user is None:
+                try:
+                    user_obj = CustomUser.objects.get(email=username_or_email)
+                    user = authenticate(username=user_obj.username, password=password)
+                except CustomUser.DoesNotExist:
+                    user = None
+
             if user:
                 login(request, user)
-                return redirect('product_list')  # change if needed
+                messages.success(request, f"Welcome back, {user.username}!")
+                return redirect('product_app:product_list')
             else:
-                return render(request, 'accounts/login.html', {'error': 'Invalid username or password'})
-        else:
-            return render(request, 'accounts/login.html', {'error': 'Please fill all fields'})
-    
-    # Always return something for GET requests
-    return render(request, 'accounts/login.html')  # Render the login page if GET request.
+                messages.error(request, "Invalid credentials.")
+    else:
+        form = CustomLoginForm()
+    return render(request, 'accounts/login.html', {'form': form})
 
+
+def guest_login_view(request):
+    guest_user = CustomUser.objects.create_user(
+        username=f"guest_{CustomUser.objects.count()+1}",
+        password=None
+    )
+    guest_user.is_active = False
+    guest_user.save()
+    login(request, guest_user, backend='django.contrib.auth.backends.ModelBackend')
+    messages.info(request, "You are logged in as a guest.")
+    return redirect('product_app:product_list')
+
+
+@login_required
 def logout_view(request):
-  logout(request)  # Log out the user. 
-  return redirect('login')  # Redirect to the login page after logout.
-  
-  
-def home_view(request):
-    return render(request, 'accounts/home.html')  # Render a home page after login.
-  
-
-def guest_view(request):
-   return redirect('product_list')  # Redirect to product list if the user is not authenticated.
-   return render(request, 'accounts/guest.html')  # Render a guest view page.
+    logout(request)
+    messages.success(request, "Logged out successfully.")
+    return redirect('account_app:login')
